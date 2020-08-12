@@ -23,34 +23,39 @@ void IDW::IDW_cost_dist(float req,  int val_null, float **cost_dist, float **&fi
     //------------------------------------------------------------------------------------------------------------------primera vez
     explorado+=movimientos(x_init, y_init,cost_dist,final,cost_map, ROWS ,COLS, val_null,explorado);
     guardado = cost_map.begin();
-    while (total<=explorado){
+    while (total<=explorado){//no vale la pena paralelizar, solo se ejecuta 1 vez
         final[guardado->second.y][guardado->second.x]= req/pow( cost_dist[guardado->second.y][guardado->second.x],exp);
         suma[guardado->second.y][guardado->second.x]+=final[guardado->second.y][guardado->second.x];
-        total++;
         guardado++;
+        total++;
     }
     guardado--;
     total--;
-    actual = cost_map.begin();
+    actual = cost_map.begin();//dejamos el iterador al inicio del mapa
     x_init = actual->second.x;
     y_init= actual->second.y;
     //------------------------------------------------------------------------------------------------------------------siguientes
     while(fin==0){
         explorado+=movimientos(x_init, y_init,cost_dist,final,cost_map, ROWS ,COLS, val_null,explorado);
-        total++;
+        //explorado es el numero de datos agregados al mapa
+        //mapa costo ditancia con la posición celda que se va a calcular
+        total++;//referencia valor de guardado
         guardado++;
-        while (total<=explorado){
+        while (total<=explorado){//no vale la pena paralelizar, maximo 3 iteraciones
             final[guardado->second.y][guardado->second.x]= req/pow( cost_dist[guardado->second.y][guardado->second.x],exp);
             suma[guardado->second.y][guardado->second.x]+=final[guardado->second.y][guardado->second.x];
-            total++;
             guardado++;
+            total++;//terminan en 1 mas
         }
-        guardado--;
+        //total solo sirve de referencia
+        //al terminar el ciclo la posicion de guardado no existe
+        guardado--;//regresar a la ultima
         total--;
-        actual++;
+        actual++;//siguiente posicion
         x_init = actual->second.x;
         y_init= actual->second.y;
-        if(actual==guardado)
+        //ultima posicion igual a la actual
+        if(actual==guardado)//si es asi ya no hay mas celdas por explorar
             fin=1;
     }
 }
@@ -61,7 +66,7 @@ int IDW::movimientos(int x, int y, float **mat, float **&final, map <int, cell> 
 	int cont=1;
 	int mov;
     cell posicion;//se crea la estructura
-    #pragma omp parallel for private(mov) collapse(2)
+    #pragma omp parallel for private(mov)
 	for(mov=1; mov<=8; mov++ ){//son 8 los posibles movimientos que puede hacer
 		switch(mov) { //para cada movimiento se guardan las coordenas temporales x y  aunque no sufran cambios
 			case 1:
@@ -110,8 +115,8 @@ int IDW::movimientos(int x, int y, float **mat, float **&final, map <int, cell> 
                                 posicion.y = y_tmp;//guarda la posición en y del movimiento
                                 map_opciones.insert(pair<int, cell>(explorado+cont, posicion));
                                 //se guarda en el mapa, biomass o costo distancia como llave y la estructura con la ubicacion x y
-                                cont++;
+                                cont++;//termina
                             }
 	}
-	return (cont-1);
+	return (cont-1);//regresa casillas exploradas
 }
