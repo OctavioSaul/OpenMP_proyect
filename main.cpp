@@ -59,8 +59,11 @@ int main() {
     cout << "llave inicial " << init->first<<endl;
     fin = bio_local.end();
     cout << "llave final " << fin->first<<endl;
-    #pragma omp parallel for
-    for(bio=init;bio->first<=fin->first;bio++){
+    int start=int(init->first);
+    int end= int(fin->first);
+    #pragma omp parallel for private(i,bio,lugar)
+    for(i=start;i<=end;i++){
+        bio=bio_local.find(i);
         if(bio->second!=0) { //busca localidad para la que se tengan requisitos
             lugar = localidades.find(bio->first);//buscar ubicacion de la localidad
             //-------------------------------------------------------------------------------------------------------inicia costo ditancia
