@@ -11,6 +11,17 @@ void IDW::reset_Matrix(float **mat,int ROWS, int COLS,float val){
 }
 //------------------------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------
+void IDW::IDW_test(float req, float **cost_dist, float **&suma, int ROWS,  int COLS, float exp){
+    int i,j;
+#pragma omp parallel for private(i,j) collapse(2)
+    for ( i = 0; i < ROWS; i++)
+        for ( j = 0; j < COLS; j++)
+            if(cost_dist[i][j]>0)
+                suma[i][j]+=req/pow( cost_dist[i][j],exp);
+}
+/*
+//------------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------
 void IDW::IDW_cost_dist(float req,  int val_null, float **cost_dist, float **&final,float **&suma,int x_init, int y_init, int ROWS, int COLS, float exp){
     //--------------------------------------------------------------condiciones iniciales
     int total=1;
@@ -119,4 +130,4 @@ int IDW::movimientos(int x, int y, float **mat, float **&final, map <int, cell> 
                             }
 	}
 	return (cont-1);//regresa casillas exploradas
-}
+}*/
